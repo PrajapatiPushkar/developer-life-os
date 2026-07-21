@@ -5,6 +5,7 @@ import com.pushkar.developerlifeos.dto.TaskResponseDTO;
 import com.pushkar.developerlifeos.entity.Task;
 import com.pushkar.developerlifeos.exception.TaskNotFoundException;
 import com.pushkar.developerlifeos.repository.TaskRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,11 +14,18 @@ import java.util.List;
 public class TaskService {
 
     private final TaskRepository taskRepository;
+    private final ModelMapper modelMapper;
+
 
     // Constructor Injection
-    public TaskService(TaskRepository taskRepository) {
+    public TaskService(TaskRepository taskRepository,
+                       ModelMapper modelMapper) {
+
         this.taskRepository = taskRepository;
+        this.modelMapper = modelMapper;
     }
+
+
 
     // Get All Tasks
     public List<Task> getAllTasks() {
@@ -27,13 +35,7 @@ public class TaskService {
     // Create New Task
     public Task createTask(TaskRequestDTO dto){
 
-        Task task = new Task();
-
-        task.setTitle(dto.getTitle());
-        task.setDescription(dto.getDescription());
-        task.setCompleted(dto.isCompleted());
-        task.setPriority(dto.getPriority());
-        task.setDueDate(dto.getDueDate());
+        Task task = modelMapper.map(dto, Task.class);
 
         return taskRepository.save(task);
     }
@@ -76,15 +78,9 @@ public class TaskService {
 
     private TaskResponseDTO convertToDTO(Task task){
 
-        TaskResponseDTO dto = new TaskResponseDTO();
+        return modelMapper.map(task, TaskResponseDTO.class);
 
-        dto.setId(task.getId());
-        dto.setTitle(task.getTitle());
-        dto.setDescription(task.getDescription());
-        dto.setCompleted(task.isCompleted());
-        dto.setPriority(task.getPriority().name());
-        dto.setDueDate(task.getDueDate());
-
-        return dto;
     }
+
+
 }
