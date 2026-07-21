@@ -1,5 +1,7 @@
 package com.pushkar.developerlifeos.controller;
 
+import com.pushkar.developerlifeos.dto.TaskRequestDTO;
+import com.pushkar.developerlifeos.dto.TaskResponseDTO;
 import com.pushkar.developerlifeos.entity.Task;
 import com.pushkar.developerlifeos.service.TaskService;
 import org.springframework.http.ResponseEntity;
@@ -22,16 +24,18 @@ public class TaskController {
     }
 
     @PostMapping
-    public Task createTask(@RequestBody Task task) {
-        return taskService.createTask(task);
+    public ResponseEntity<Task> createTask(
+            @RequestBody TaskRequestDTO dto){
+
+        return ResponseEntity.ok(
+                taskService.createTask(dto));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
+    public ResponseEntity<TaskResponseDTO> getTaskById(
+            @PathVariable Long id){
 
-        Task task = taskService.getTaskById(id);
-
-        return ResponseEntity.ok(task);
+        return ResponseEntity.ok(taskService.getTaskById(id));
     }
 
     @PutMapping("/{id}")

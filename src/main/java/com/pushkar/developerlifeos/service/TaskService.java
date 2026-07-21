@@ -1,5 +1,7 @@
 package com.pushkar.developerlifeos.service;
 
+import com.pushkar.developerlifeos.dto.TaskRequestDTO;
+import com.pushkar.developerlifeos.dto.TaskResponseDTO;
 import com.pushkar.developerlifeos.entity.Task;
 import com.pushkar.developerlifeos.exception.TaskNotFoundException;
 import com.pushkar.developerlifeos.repository.TaskRepository;
@@ -23,15 +25,27 @@ public class TaskService {
     }
 
     // Create New Task
-    public Task createTask(Task task) {
+    public Task createTask(TaskRequestDTO dto){
+
+        Task task = new Task();
+
+        task.setTitle(dto.getTitle());
+        task.setDescription(dto.getDescription());
+        task.setCompleted(dto.isCompleted());
+        task.setPriority(dto.getPriority());
+        task.setDueDate(dto.getDueDate());
+
         return taskRepository.save(task);
     }
 
     // Get Task by ID
-    public Task getTaskById(Long id) {
-        return taskRepository.findById(id)
+    public TaskResponseDTO getTaskById(Long id){
+
+        Task task = taskRepository.findById(id)
                 .orElseThrow(() ->
-                        new TaskNotFoundException("Task not found with id: " + id));
+                        new TaskNotFoundException("Task not found"));
+
+        return convertToDTO(task);
     }
 
     // Update task
@@ -58,5 +72,19 @@ public class TaskService {
                         new TaskNotFoundException("Task not found with id : " + id));
 
         taskRepository.delete(existingTask);
+    }
+
+    private TaskResponseDTO convertToDTO(Task task){
+
+        TaskResponseDTO dto = new TaskResponseDTO();
+
+        dto.setId(task.getId());
+        dto.setTitle(task.getTitle());
+        dto.setDescription(task.getDescription());
+        dto.setCompleted(task.isCompleted());
+        dto.setPriority(task.getPriority().name());
+        dto.setDueDate(task.getDueDate());
+
+        return dto;
     }
 }
