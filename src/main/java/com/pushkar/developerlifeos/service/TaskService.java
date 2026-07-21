@@ -6,6 +6,8 @@ import com.pushkar.developerlifeos.entity.Task;
 import com.pushkar.developerlifeos.exception.TaskNotFoundException;
 import com.pushkar.developerlifeos.repository.TaskRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,8 +30,10 @@ public class TaskService {
 
 
     // Get All Tasks
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+    public Page<Task> getAllTasks(Pageable pageable){
+
+        return taskRepository.findAll(pageable);
+
     }
 
     // Create New Task

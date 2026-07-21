@@ -5,6 +5,8 @@ import com.pushkar.developerlifeos.dto.TaskResponseDTO;
 import com.pushkar.developerlifeos.entity.Task;
 import com.pushkar.developerlifeos.service.TaskService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,8 +22,11 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<Task> getAllTasks() {
-        return taskService.getAllTasks();
+    public Page<Task> getAllTasks(
+            Pageable pageable){
+
+        return taskService.getAllTasks(pageable);
+
     }
 
     @PostMapping
