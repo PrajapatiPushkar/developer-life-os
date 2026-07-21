@@ -4,6 +4,7 @@ import com.pushkar.developerlifeos.dto.TaskRequestDTO;
 import com.pushkar.developerlifeos.dto.TaskResponseDTO;
 import com.pushkar.developerlifeos.entity.Task;
 import com.pushkar.developerlifeos.service.TaskService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,7 @@ public class TaskController {
 
     @PostMapping
     public ResponseEntity<Task> createTask(
+            @Valid
             @RequestBody TaskRequestDTO dto){
 
         return ResponseEntity.ok(
