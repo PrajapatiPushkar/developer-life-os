@@ -2,13 +2,18 @@ package com.pushkar.developerlifeos.controller;
 
 import com.pushkar.developerlifeos.dto.TaskRequestDTO;
 import com.pushkar.developerlifeos.dto.TaskResponseDTO;
+import com.pushkar.developerlifeos.entity.Priority;
 import com.pushkar.developerlifeos.entity.Task;
 import com.pushkar.developerlifeos.service.TaskService;
+
 import jakarta.validation.Valid;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -73,6 +78,29 @@ public class TaskController {
                         keyword,
                         pageable
                 )
+        );
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<TaskResponseDTO>> filterTasks(
+
+            @RequestParam(required = false)
+            String title,
+
+            @RequestParam(required = false)
+            Priority priority,
+
+            @RequestParam(required = false)
+            Boolean completed){
+
+        return ResponseEntity.ok(
+
+                taskService.filterTasks(
+                        title,
+                        priority,
+                        completed
+                )
+
         );
     }
 }

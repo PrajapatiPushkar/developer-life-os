@@ -2,12 +2,17 @@ package com.pushkar.developerlifeos.service;
 
 import com.pushkar.developerlifeos.dto.TaskRequestDTO;
 import com.pushkar.developerlifeos.dto.TaskResponseDTO;
+import com.pushkar.developerlifeos.entity.Priority;
 import com.pushkar.developerlifeos.entity.Task;
 import com.pushkar.developerlifeos.exception.TaskNotFoundException;
 import com.pushkar.developerlifeos.repository.TaskRepository;
+import com.pushkar.developerlifeos.specification.TaskSpecification;
+
 import org.modelmapper.ModelMapper;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,7 +35,8 @@ public class TaskService {
 
 
     // Get All Tasks
-    public Page<Task> getAllTasks(Pageable pageable){
+    public
+    Page<Task> getAllTasks(Pageable pageable){
 
         return taskRepository.findAll(pageable);
 
@@ -100,6 +106,43 @@ public class TaskService {
         return tasks.map(task ->
                 modelMapper.map(task,
                         TaskResponseDTO.class));
+    }
+
+    public List<TaskResponseDTO> filterTasks(
+            String title,
+            Priority priority,
+            Boolean completed) {
+
+        Specification<Task> specification =
+                Specification.allOf();
+
+        if (title != null) {
+
+            specification = specification.and(
+                    TaskSpecification.hasTitle(title));
+
+        }
+
+        if (priority != null) {
+
+            specification = specification.and(
+                    TaskSpecification.hasPriority(priority));
+
+        }
+
+        if (completed != null) {
+
+            specification = specification.and(
+                    TaskSpecification.isCompleted(completed));
+
+        }
+
+        return taskRepository.findAll(specification)
+                .stream()
+                .map(task -> modelMapper.map(task,
+                        TaskResponseDTO.class))
+                .toList();
+
     }
 
 
