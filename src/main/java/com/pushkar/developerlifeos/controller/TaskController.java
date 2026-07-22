@@ -61,4 +61,18 @@ public class TaskController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<TaskResponseDTO>>
+    searchTasks(
+            @RequestParam String keyword,
+            Pageable pageable) {
+
+        return ResponseEntity.ok(
+                taskService.searchTasks(
+                        keyword,
+                        pageable
+                )
+        );
+    }
 }

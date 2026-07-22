@@ -87,4 +87,20 @@ public class TaskService {
     }
 
 
+    public Page<TaskResponseDTO> searchTasks(
+            String keyword,
+            Pageable pageable) {
+
+        Page<Task> tasks =
+                taskRepository.findByTitleContainingIgnoreCase(
+                        keyword,
+                        pageable
+                );
+
+        return tasks.map(task ->
+                modelMapper.map(task,
+                        TaskResponseDTO.class));
+    }
+
+
 }
