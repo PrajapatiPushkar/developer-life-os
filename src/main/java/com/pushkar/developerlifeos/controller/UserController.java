@@ -1,5 +1,7 @@
 package com.pushkar.developerlifeos.controller;
 
+import com.pushkar.developerlifeos.dto.LoginRequestDTO;
+import com.pushkar.developerlifeos.dto.LoginResponseDTO;
 import com.pushkar.developerlifeos.dto.UserRequestDTO;
 import com.pushkar.developerlifeos.entity.User;
 import com.pushkar.developerlifeos.service.UserService;
@@ -23,6 +25,19 @@ public class UserController {
         return ResponseEntity.ok(
                 userService.register(dto)
         );
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> login(
+
+            @RequestBody LoginRequestDTO dto){
+
+        String token =
+                userService.login(dto);
+
+        return ResponseEntity.ok(
+                new LoginResponseDTO(token));
+
     }
 
 }
