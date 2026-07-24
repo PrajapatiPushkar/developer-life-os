@@ -2,9 +2,11 @@ package com.pushkar.developerlifeos.service;
 
 import com.pushkar.developerlifeos.dto.LoginRequestDTO;
 import com.pushkar.developerlifeos.dto.UserRequestDTO;
+import com.pushkar.developerlifeos.entity.Role;
 import com.pushkar.developerlifeos.entity.User;
 import com.pushkar.developerlifeos.repository.UserRepository;
 import com.pushkar.developerlifeos.security.JwtService;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,40 +26,31 @@ public class UserService {
         this.jwtService = jwtService;
     }
 
-    public User register(UserRequestDTO dto){
+    public User register(UserRequestDTO dto) {
 
         User user = new User();
 
         user.setUsername(dto.getUsername());
-
-        user.setPassword(
-                passwordEncoder.encode(dto.getPassword())
-        );
-
-        user.setRole("ROLE_USER");
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setRole(Role.ROLE_USER);
 
         return userRepository.save(user);
     }
 
-    public String login(LoginRequestDTO dto){
+    public String login(LoginRequestDTO dto) {
 
         User user = userRepository
                 .findByUsername(dto.getUsername())
-                .orElseThrow(
-                        () -> new RuntimeException(
-                                "User Not Found"));
+                .orElseThrow(() ->
+                        new RuntimeException("User Not Found"));
 
-        if(!passwordEncoder.matches(
+        if (!passwordEncoder.matches(
                 dto.getPassword(),
-                user.getPassword())){
+                user.getPassword())) {
 
-            throw new RuntimeException(
-                    "Invalid Password");
+            throw new RuntimeException("Invalid Password");
         }
 
-        return jwtService.generateToken(
-                user.getUsername());
-
+        return jwtService.generateToken(user);
     }
-
 }

@@ -3,6 +3,7 @@ package com.pushkar.developerlifeos.config;
 import com.pushkar.developerlifeos.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -43,19 +44,18 @@ public class SecurityConfig {
 
                         ))
 
-                .authorizeHttpRequests(auth->
+                .authorizeHttpRequests(auth -> auth
 
-                        auth
+                .requestMatchers("/auth/**")
+                .permitAll()
 
-                                .requestMatchers("/auth/**")
+                .requestMatchers(HttpMethod.DELETE,
+                        "/api/tasks/**")
+                .hasRole("ADMIN")
 
-                                .permitAll()
-
-                                .anyRequest()
-
-                                .authenticated()
-
-                )
+                .anyRequest()
+                .authenticated()
+        )
 
                 .addFilterBefore(
 

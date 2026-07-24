@@ -1,5 +1,6 @@
 package com.pushkar.developerlifeos.security;
 
+import com.pushkar.developerlifeos.entity.User;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,28 +19,28 @@ public class JwtService {
     @Value("${jwt.expiration}")
     private long expiration;
 
-    public String generateToken(String username){
+    public String generateToken(User user) {
 
         SecretKey key = Keys.hmacShaKeyFor(
                 secret.getBytes(StandardCharsets.UTF_8));
 
         return Jwts.builder()
 
-                .subject(username)
+                .subject(user.getUsername())
+
+                .claim("role", user.getRole().name())
 
                 .issuedAt(new Date())
 
                 .expiration(new Date(
-                        System.currentTimeMillis()
-                                + expiration))
+                        System.currentTimeMillis() + expiration))
 
                 .signWith(key)
 
                 .compact();
-
     }
 
-    public String extractUsername(String token){
+    public String extractUsername(String token) {
 
         SecretKey key = Keys.hmacShaKeyFor(
                 secret.getBytes(StandardCharsets.UTF_8));
@@ -55,23 +56,19 @@ public class JwtService {
                 .getPayload()
 
                 .getSubject();
-
     }
 
-    public boolean isTokenValid(String token){
+    public boolean isTokenValid(String token) {
 
-        try{
+        try {
 
             extractUsername(token);
 
             return true;
 
-        }catch(Exception e){
+        } catch (Exception e) {
 
             return false;
-
         }
-
     }
-
 }
