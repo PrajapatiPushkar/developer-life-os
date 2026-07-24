@@ -4,6 +4,8 @@ import com.pushkar.developerlifeos.dto.LoginRequestDTO;
 import com.pushkar.developerlifeos.dto.UserRequestDTO;
 import com.pushkar.developerlifeos.entity.Role;
 import com.pushkar.developerlifeos.entity.User;
+import com.pushkar.developerlifeos.exception.InvalidCredentialsException;
+import com.pushkar.developerlifeos.exception.UserNotFoundException;
 import com.pushkar.developerlifeos.repository.UserRepository;
 import com.pushkar.developerlifeos.security.JwtService;
 
@@ -42,13 +44,13 @@ public class UserService {
         User user = userRepository
                 .findByUsername(dto.getUsername())
                 .orElseThrow(() ->
-                        new RuntimeException("User Not Found"));
+                        new UserNotFoundException("User Not Found"));
 
         if (!passwordEncoder.matches(
                 dto.getPassword(),
                 user.getPassword())) {
 
-            throw new RuntimeException("Invalid Password");
+            throw new InvalidCredentialsException("Invalid Credentials");
         }
 
         return jwtService.generateToken(user);
