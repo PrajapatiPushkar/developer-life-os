@@ -2,6 +2,9 @@ package com.pushkar.developerlifeos.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,23 +13,44 @@ import org.springframework.context.annotation.Configuration;
 public class OpenApiConfig {
 
     @Bean
-    public OpenAPI developerLifeOSApi(){
+    public OpenAPI developerLifeOSApi() {
+
+        final String securitySchemeName = "bearerAuth";
 
         return new OpenAPI()
 
-                .info(
+                .info(new Info()
+                        .title("Developer-Life-OS API")
+                        .version("1.0")
+                        .description("Task Management REST API"))
 
-                        new Info()
+                .addSecurityItem(
+                        new SecurityRequirement()
+                                .addList(securitySchemeName)
+                )
 
-                                .title("Developer-Life-OS API")
+                .components(
 
-                                .version("1.0")
+                        new Components()
 
-                                .description(
-                                        "Task Management REST API built using Spring Boot"
+                                .addSecuritySchemes(
+
+                                        securitySchemeName,
+
+                                        new SecurityScheme()
+
+                                                .name(securitySchemeName)
+
+                                                .type(SecurityScheme.Type.HTTP)
+
+                                                .scheme("bearer")
+
+                                                .bearerFormat("JWT")
+
                                 )
 
                 );
+
     }
 
 }
