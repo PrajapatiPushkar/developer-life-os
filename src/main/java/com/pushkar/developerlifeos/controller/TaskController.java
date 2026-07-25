@@ -6,6 +6,8 @@ import com.pushkar.developerlifeos.entity.Priority;
 import com.pushkar.developerlifeos.entity.Task;
 import com.pushkar.developerlifeos.service.TaskService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
@@ -17,6 +19,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tasks")
+@Tag(name = "Task APIs", description = "Operations related to tasks")
 public class TaskController {
 
     private final TaskService taskService;
@@ -25,6 +28,7 @@ public class TaskController {
         this.taskService = taskService;
     }
 
+    @Operation(summary = "Get All Tasks")
     @GetMapping
     public Page<Task> getAllTasks(
             Pageable pageable){
