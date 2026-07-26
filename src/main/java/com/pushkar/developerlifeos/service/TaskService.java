@@ -8,8 +8,11 @@ import com.pushkar.developerlifeos.exception.TaskNotFoundException;
 import com.pushkar.developerlifeos.repository.TaskRepository;
 import com.pushkar.developerlifeos.specification.TaskSpecification;
 
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -18,10 +21,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@Slf4j
 public class TaskService {
 
     private final TaskRepository taskRepository;
     private final ModelMapper modelMapper;
+    private static final Logger logger = LoggerFactory.getLogger(TaskService.class);
 
 
     // Constructor Injection
@@ -45,9 +50,15 @@ public class TaskService {
     // Create New Task
     public Task createTask(TaskRequestDTO dto){
 
+        log.info("Creating task with title: {}", dto.getTitle());
+
         Task task = modelMapper.map(dto, Task.class);
 
-        return taskRepository.save(task);
+        Task savedTask = taskRepository.save(task);
+
+        log.info("Task created successfully. Task ID: {}", savedTask.getId());
+
+        return savedTask;
     }
 
     // Get Task by ID
@@ -63,6 +74,8 @@ public class TaskService {
     // Update task
     public Task updateTask(Long id, Task updatedTask) {
 
+        log.info("Updating task with id: {}", id);
+
         Task existingTask = taskRepository.findById(id)
                 .orElseThrow(() ->
                         new TaskNotFoundException("Task not found with id : " + id));
@@ -73,17 +86,21 @@ public class TaskService {
         existingTask.setCompleted(updatedTask.isCompleted());
         existingTask.setDueDate(updatedTask.getDueDate());
 
+        log.info("Task updated successfully: {}", id);
         return taskRepository.save(existingTask);
+
     }
 
     // Delete task
     public void deleteTask(Long id) {
+        log.info("Deleting task with id: {}", id);
 
         Task existingTask = taskRepository.findById(id)
                 .orElseThrow(() ->
                         new TaskNotFoundException("Task not found with id : " + id));
 
         taskRepository.delete(existingTask);
+        log.info("Deleting task with id: {}", id);
     }
 
     private TaskResponseDTO convertToDTO(Task task){
