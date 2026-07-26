@@ -1,5 +1,6 @@
 package com.pushkar.developerlifeos.controller;
 
+import com.pushkar.developerlifeos.dto.ApiResponse;
 import com.pushkar.developerlifeos.dto.TaskRequestDTO;
 import com.pushkar.developerlifeos.dto.TaskResponseDTO;
 import com.pushkar.developerlifeos.entity.Priority;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -38,19 +40,38 @@ public class TaskController {
     }
 
     @PostMapping
-    public ResponseEntity<Task> createTask(
+    public ResponseEntity<ApiResponse<Task>> createTask(
             @Valid
-            @RequestBody TaskRequestDTO dto){
+            @RequestBody TaskRequestDTO dto) {
 
-        return ResponseEntity.ok(
-                taskService.createTask(dto));
+        Task task = taskService.createTask(dto);
+
+        ApiResponse<Task> response =
+                new ApiResponse<>(
+                        true,
+                        "Task created successfully",
+                        task,
+                        LocalDateTime.now()
+                );
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TaskResponseDTO> getTaskById(
+    public ResponseEntity<ApiResponse<TaskResponseDTO>> getTaskById(
             @PathVariable Long id){
 
-        return ResponseEntity.ok(taskService.getTaskById(id));
+        TaskResponseDTO task = taskService.getTaskById(id);
+
+        ApiResponse<TaskResponseDTO> response =
+                new ApiResponse<>(
+                        true,
+                        "Task fetched successfully",
+                        task,
+                        LocalDateTime.now()
+                );
+
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
@@ -64,11 +85,21 @@ public class TaskController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<TaskResponseDTO>> deleteTask(@PathVariable Long id) {
 
         taskService.deleteTask(id);
 
-        return ResponseEntity.noContent().build();
+        TaskResponseDTO task = taskService.getTaskById(id);
+
+        ApiResponse<TaskResponseDTO> response =
+                new ApiResponse<>(
+                        true,
+                        "Task fetched successfully",
+                        task,
+                        LocalDateTime.now()
+                );
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/search")
