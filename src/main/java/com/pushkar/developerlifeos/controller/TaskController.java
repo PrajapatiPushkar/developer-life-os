@@ -1,6 +1,7 @@
 package com.pushkar.developerlifeos.controller;
 
 import com.pushkar.developerlifeos.dto.ApiResponse;
+import com.pushkar.developerlifeos.dto.DashboardSummaryDTO;
 import com.pushkar.developerlifeos.dto.TaskRequestDTO;
 import com.pushkar.developerlifeos.dto.TaskResponseDTO;
 import com.pushkar.developerlifeos.entity.Priority;
@@ -137,5 +138,17 @@ public class TaskController {
                 )
 
         );
+    }
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<DashboardSummaryDTO>
+    dashboard(){
+
+        return ResponseEntity.ok(
+
+                taskService.getDashboardSummary()
+
+        );
+
     }
 }

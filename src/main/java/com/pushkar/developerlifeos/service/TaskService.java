@@ -1,5 +1,6 @@
 package com.pushkar.developerlifeos.service;
 
+import com.pushkar.developerlifeos.dto.DashboardSummaryDTO;
 import com.pushkar.developerlifeos.dto.TaskRequestDTO;
 import com.pushkar.developerlifeos.dto.TaskResponseDTO;
 import com.pushkar.developerlifeos.entity.Priority;
@@ -159,6 +160,34 @@ public class TaskService {
                 .map(task -> modelMapper.map(task,
                         TaskResponseDTO.class))
                 .toList();
+
+    }
+
+    public DashboardSummaryDTO getDashboardSummary(){
+
+        long total = taskRepository.count();
+
+        long completed =
+                taskRepository.countByCompleted(true);
+
+        long pending =
+                taskRepository.countByCompleted(false);
+
+        long high =
+                taskRepository.countByPriority(
+                        Priority.HIGH);
+
+        return new DashboardSummaryDTO(
+
+                total,
+
+                completed,
+
+                pending,
+
+                high
+
+        );
 
     }
 

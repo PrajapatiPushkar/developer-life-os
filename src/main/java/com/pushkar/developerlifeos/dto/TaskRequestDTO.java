@@ -1,6 +1,8 @@
 package com.pushkar.developerlifeos.dto;
 
+import com.pushkar.developerlifeos.entity.Category;
 import com.pushkar.developerlifeos.entity.Priority;
+import com.pushkar.developerlifeos.entity.TaskStatus;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -11,6 +13,10 @@ import java.time.LocalDate;
 
 @Data
 public class TaskRequestDTO {
+
+    private TaskStatus status;
+
+    private Category category;
 
     @NotBlank(message = "Title is required")
     @Size(min = 3, max = 100,

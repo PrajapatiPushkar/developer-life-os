@@ -29,6 +29,12 @@ public class Task {
 
     private LocalDate dueDate;
 
+    @Enumerated(EnumType.STRING)
+    private TaskStatus status = TaskStatus.TODO;
+
+    @Enumerated(EnumType.STRING)
+    private Category category = Category.OTHER;
+
 
     // Getters & Setters
 }
