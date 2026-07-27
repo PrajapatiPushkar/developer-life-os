@@ -1,6 +1,7 @@
 package com.pushkar.developerlifeos.entity;
 
 
+import com.pushkar.developerlifeos.entity.base.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -9,7 +10,7 @@ import java.time.LocalDate;
 @Data
 @Entity
 @Table(name = "tasks")
-public class Task {
+public class Task extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -5,6 +5,7 @@ import com.pushkar.developerlifeos.entity.TaskStatus;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class TaskResponseDTO {
@@ -24,5 +25,9 @@ public class TaskResponseDTO {
     private TaskStatus status;
 
     private Category category;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 
 }
