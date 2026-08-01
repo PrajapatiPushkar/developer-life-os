@@ -1,0 +1,40 @@
+services:
+
+  mysql:
+    image: mysql:8.4
+    container_name: developerlifeos-mysql
+    restart: always
+
+    environment:
+      MYSQL_ROOT_PASSWORD: Password
+      MYSQL_DATABASE: developer_life_os
+
+    ports:
+      - "3306:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+
+    build: .
+
+    container_name: developerlifeos-backend
+
+    restart: always
+
+    depends_on:
+      - mysql
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:mysql://mysql:3306/developer_life_os
+      DB_USERNAME: root
+      DB_PASSWORD: Password
+      JWT_SECRET: MySecretKeyForDeveloperLifeOS123456789
+
+volumes:
+  mysql_data:
