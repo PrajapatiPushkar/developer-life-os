@@ -2,6 +2,8 @@ package com.pushkar.developerlifeos.specification;
 
 import com.pushkar.developerlifeos.entity.Priority;
 import com.pushkar.developerlifeos.entity.Task;
+
+import com.pushkar.developerlifeos.entity.TaskStatus;
 import org.springframework.data.jpa.domain.Specification;
 
 public class TaskSpecification {
@@ -27,6 +29,12 @@ public class TaskSpecification {
                         priority
                 );
 
+    }
+
+    public static Specification<Task> hasStatus(TaskStatus status) {
+
+        return (root, query, cb) ->
+                cb.equal(root.get("status"), status);
     }
 
     public static Specification<Task>

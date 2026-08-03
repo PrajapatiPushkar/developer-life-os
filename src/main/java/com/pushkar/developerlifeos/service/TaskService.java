@@ -200,5 +200,22 @@ public class TaskService {
 
     }
 
+    public List<TaskResponseDTO> getUpcomingTasks() {
+
+        return taskRepository
+
+                .findTop5ByOrderByDueDateAsc()
+
+                .stream()
+
+                .map(task -> modelMapper.map(
+                        task,
+                        TaskResponseDTO.class
+                ))
+
+                .toList();
+
+    }
+
 
 }

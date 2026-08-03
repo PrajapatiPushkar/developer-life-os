@@ -6,7 +6,9 @@ import com.pushkar.developerlifeos.dto.TaskRequestDTO;
 import com.pushkar.developerlifeos.dto.TaskResponseDTO;
 import com.pushkar.developerlifeos.entity.Priority;
 import com.pushkar.developerlifeos.entity.Task;
+import com.pushkar.developerlifeos.entity.TaskStatus;
 import com.pushkar.developerlifeos.service.TaskService;
+
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -126,7 +128,7 @@ public class TaskController {
             Priority priority,
 
             @RequestParam(required = false)
-            TaskService status,
+            TaskStatus status,
 
             @RequestParam(required = false)
             Boolean completed){
@@ -150,6 +152,17 @@ public class TaskController {
         return ResponseEntity.ok(
 
                 taskService.getDashboardSummary()
+
+        );
+
+    }
+
+    @GetMapping("/upcoming")
+    public ResponseEntity<List<TaskResponseDTO>> upcomingTasks() {
+
+        return ResponseEntity.ok(
+
+                taskService.getUpcomingTasks()
 
         );
 
