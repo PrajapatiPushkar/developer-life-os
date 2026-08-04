@@ -5,6 +5,8 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "goals")
@@ -53,5 +55,12 @@ public class Goal {
         updatedAt = LocalDateTime.now();
 
     }
+
+    @OneToMany(
+            mappedBy = "goal",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Milestone> milestones = new ArrayList<>();
 
 }
