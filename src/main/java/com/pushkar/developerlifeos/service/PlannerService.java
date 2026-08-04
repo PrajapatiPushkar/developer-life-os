@@ -151,4 +151,25 @@ public class PlannerService {
 
     }
 
+    // Focus method
+    public List<PlannerResponseDTO> getTodayFocus() {
+
+        return plannerRepository
+
+                .findByPlannerDateAndCompletedFalse(
+                        LocalDate.now()
+                )
+
+                .stream()
+
+                .map(planner ->
+                        modelMapper.map(
+                                planner,
+                                PlannerResponseDTO.class
+                        ))
+
+                .toList();
+
+    }
+
 }

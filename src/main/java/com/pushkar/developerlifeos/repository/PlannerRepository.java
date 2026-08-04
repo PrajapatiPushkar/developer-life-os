@@ -18,4 +18,6 @@ public interface PlannerRepository extends JpaRepository<Planner, Long> {
             TimeSlot timeSlot
     );
 
+    List<Planner> findByPlannerDateAndCompletedFalse(LocalDate plannerDate);
+
 }

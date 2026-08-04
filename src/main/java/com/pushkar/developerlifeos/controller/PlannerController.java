@@ -155,4 +155,17 @@ public class PlannerController {
 
     }
 
+    // Focus
+    @GetMapping("/focus")
+    public ResponseEntity<List<PlannerResponseDTO>>
+    todayFocus() {
+
+        return ResponseEntity.ok(
+
+                plannerService.getTodayFocus()
+
+        );
+
+    }
+
 }
