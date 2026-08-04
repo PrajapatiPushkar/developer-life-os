@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -172,29 +173,41 @@ public class TaskService {
 
     }
 
-    public DashboardSummaryDTO getDashboardSummary(){
+    public DashboardSummaryDTO getDashboardSummary() {
 
         long total = taskRepository.count();
 
-        long completed =
-                taskRepository.countByCompleted(true);
+        long completed = taskRepository.countByCompleted(true);
 
-        long pending =
-                taskRepository.countByCompleted(false);
+        long pending = taskRepository.countByCompleted(false);
 
-        long high =
-                taskRepository.countByPriority(
-                        Priority.HIGH);
+        long high = taskRepository.countByPriority(Priority.HIGH);
+
+        long overdue =
+                taskRepository.countByDueDateBeforeAndCompletedFalse(
+                        LocalDate.now());
+
+        long today =
+                taskRepository.countByDueDateAndCompletedFalse(
+                        LocalDate.now());
+
+        double progress =
+
+                total == 0
+
+                        ? 0
+
+                        : ((double) completed / total) * 100;
 
         return new DashboardSummaryDTO(
 
                 total,
-
                 completed,
-
                 pending,
-
-                high
+                high,
+                overdue,
+                today,
+                progress
 
         );
 

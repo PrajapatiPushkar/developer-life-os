@@ -6,7 +6,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class DashboardSummaryDTO {
-
     private long totalTasks;
 
     private long completedTasks;
@@ -14,5 +13,11 @@ public class DashboardSummaryDTO {
     private long pendingTasks;
 
     private long highPriorityTasks;
+
+    private long overdueTasks;
+
+    private long dueToday;
+
+    private double completionPercentage;
 
 }
