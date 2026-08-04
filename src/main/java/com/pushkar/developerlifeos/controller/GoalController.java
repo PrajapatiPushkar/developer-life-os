@@ -76,4 +76,23 @@ public class GoalController {
 
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Goal> updateGoal(
+            @PathVariable Long id,
+            @RequestBody GoalRequestDTO dto) {
+
+        return ResponseEntity.ok(
+                goalService.updateGoal(id, dto)
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteGoal(
+            @PathVariable Long id) {
+
+        goalService.deleteGoal(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
 }

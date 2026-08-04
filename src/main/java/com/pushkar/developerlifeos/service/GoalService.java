@@ -62,4 +62,29 @@ public class GoalService {
 
     }
 
+    public Goal updateGoal(Long id, GoalRequestDTO dto) {
+
+        Goal existingGoal = goalRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Goal not found"));
+
+        existingGoal.setTitle(dto.getTitle());
+        existingGoal.setDescription(dto.getDescription());
+        existingGoal.setTargetDate(dto.getTargetDate());
+        existingGoal.setProgress(dto.getProgress());
+        existingGoal.setStatus(dto.getStatus());
+        existingGoal.setCategory(dto.getCategory());
+
+        return goalRepository.save(existingGoal);
+    }
+
+    public void deleteGoal(Long id) {
+
+        Goal goal = goalRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Goal not found"));
+
+        goalRepository.delete(goal);
+    }
+
 }
