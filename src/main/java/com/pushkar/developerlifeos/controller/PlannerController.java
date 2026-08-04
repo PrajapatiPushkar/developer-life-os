@@ -4,11 +4,13 @@ import com.pushkar.developerlifeos.dto.ApiResponse;
 import com.pushkar.developerlifeos.dto.PlannerRequestDTO;
 import com.pushkar.developerlifeos.dto.PlannerResponseDTO;
 import com.pushkar.developerlifeos.entity.Planner;
+import com.pushkar.developerlifeos.entity.TimeSlot;
 import com.pushkar.developerlifeos.service.PlannerService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -74,6 +76,80 @@ public class PlannerController {
         return ResponseEntity.ok(
 
                 plannerService.getPlannerById(id)
+
+        );
+
+    }
+
+    // update
+    @PutMapping("/{id}")
+    public ResponseEntity<Planner> updatePlanner(
+
+            @PathVariable Long id,
+
+            @RequestBody PlannerRequestDTO dto) {
+
+        return ResponseEntity.ok(
+
+                plannerService.updatePlanner(id, dto)
+
+        );
+
+    }
+
+    // Delete
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePlanner(
+
+            @PathVariable Long id) {
+
+        plannerService.deletePlanner(id);
+
+        return ResponseEntity.noContent().build();
+
+    }
+
+    // Toggle Complete
+    @PatchMapping("/{id}/toggle")
+    public ResponseEntity<Planner> toggleCompleted(
+
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+
+                plannerService.toggleCompleted(id)
+
+        );
+
+    }
+
+    // Filter by Date
+    @GetMapping("/date")
+    public ResponseEntity<List<PlannerResponseDTO>>
+
+    plannerByDate(
+
+            @RequestParam LocalDate date) {
+
+        return ResponseEntity.ok(
+
+                plannerService.getPlannerByDate(date)
+
+        );
+
+    }
+
+    // Filter by Time Slot
+    @GetMapping("/timeslot")
+    public ResponseEntity<List<PlannerResponseDTO>>
+
+    plannerByTimeSlot(
+
+            @RequestParam TimeSlot slot) {
+
+        return ResponseEntity.ok(
+
+                plannerService.getPlannerByTimeSlot(slot)
 
         );
 
