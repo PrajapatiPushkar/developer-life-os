@@ -5,10 +5,11 @@ import com.pushkar.developerlifeos.entity.Platform;
 import com.pushkar.developerlifeos.entity.Problem;
 import com.pushkar.developerlifeos.entity.Topic;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.List;
 
-public interface ProblemRepository extends JpaRepository<Problem, Long> {
+public interface ProblemRepository extends JpaRepository<Problem, Long>, JpaSpecificationExecutor<Problem> {
 
     List<Problem> findByDifficulty(Difficulty difficulty);
 

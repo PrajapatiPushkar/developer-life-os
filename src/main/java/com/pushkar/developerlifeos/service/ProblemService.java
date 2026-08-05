@@ -4,11 +4,15 @@ import com.pushkar.developerlifeos.dto.DSAStatisticsDTO;
 import com.pushkar.developerlifeos.dto.ProblemRequestDTO;
 import com.pushkar.developerlifeos.dto.ProblemResponseDTO;
 import com.pushkar.developerlifeos.entity.Difficulty;
+import com.pushkar.developerlifeos.entity.Platform;
 import com.pushkar.developerlifeos.entity.Problem;
+import com.pushkar.developerlifeos.entity.Topic;
 import com.pushkar.developerlifeos.repository.ProblemRepository;
+import com.pushkar.developerlifeos.specification.ProblemSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -133,6 +137,70 @@ public class ProblemService {
                 hard
 
         );
+
+    }
+
+    public List<ProblemResponseDTO> filterProblems(
+
+            String title,
+
+            Difficulty difficulty,
+
+            Platform platform,
+
+            Topic topic,
+
+            Boolean solved){
+
+        Specification<Problem> specification =
+                Specification.allOf();
+
+        if(title!=null && !title.isBlank()){
+
+            specification=specification.and(
+                    ProblemSpecification.hasTitle(title));
+
+        }
+
+        if(difficulty!=null){
+
+            specification=specification.and(
+                    ProblemSpecification.hasDifficulty(difficulty));
+
+        }
+
+        if(platform!=null){
+
+            specification=specification.and(
+                    ProblemSpecification.hasPlatform(platform));
+
+        }
+
+        if(topic!=null){
+
+            specification=specification.and(
+                    ProblemSpecification.hasTopic(topic));
+
+        }
+
+        if(solved!=null){
+
+            specification=specification.and(
+                    ProblemSpecification.isSolved(solved));
+
+        }
+
+        return problemRepository.findAll(specification)
+
+                .stream()
+
+                .map(problem->
+
+                        modelMapper.map(
+                                problem,
+                                ProblemResponseDTO.class))
+
+                .toList();
 
     }
 

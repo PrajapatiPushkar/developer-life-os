@@ -4,7 +4,10 @@ import com.pushkar.developerlifeos.dto.ApiResponse;
 import com.pushkar.developerlifeos.dto.DSAStatisticsDTO;
 import com.pushkar.developerlifeos.dto.ProblemRequestDTO;
 import com.pushkar.developerlifeos.dto.ProblemResponseDTO;
+import com.pushkar.developerlifeos.entity.Platform;
+import com.pushkar.developerlifeos.entity.Difficulty;
 import com.pushkar.developerlifeos.entity.Problem;
+import com.pushkar.developerlifeos.entity.Topic;
 import com.pushkar.developerlifeos.service.ProblemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -78,6 +81,45 @@ public class ProblemController {
         return ResponseEntity.ok(
 
                 problemService.getStatistics()
+
+        );
+
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<ProblemResponseDTO>>
+    filterProblems(
+
+            @RequestParam(required=false)
+            String title,
+
+            @RequestParam(required=false)
+            Difficulty difficulty,
+
+            @RequestParam(required=false)
+            Platform platform,
+
+            @RequestParam(required=false)
+            Topic topic,
+
+            @RequestParam(required=false)
+            Boolean solved){
+
+        return ResponseEntity.ok(
+
+                problemService.filterProblems(
+
+                        title,
+
+                        difficulty,
+
+                        platform,
+
+                        topic,
+
+                        solved
+
+                )
 
         );
 
