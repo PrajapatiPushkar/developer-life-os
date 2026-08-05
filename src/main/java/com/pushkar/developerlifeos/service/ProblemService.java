@@ -1,7 +1,9 @@
 package com.pushkar.developerlifeos.service;
 
+import com.pushkar.developerlifeos.dto.DSAStatisticsDTO;
 import com.pushkar.developerlifeos.dto.ProblemRequestDTO;
 import com.pushkar.developerlifeos.dto.ProblemResponseDTO;
+import com.pushkar.developerlifeos.entity.Difficulty;
 import com.pushkar.developerlifeos.entity.Problem;
 import com.pushkar.developerlifeos.repository.ProblemRepository;
 import lombok.RequiredArgsConstructor;
@@ -99,6 +101,38 @@ public class ProblemService {
         problemRepository.delete(problem);
 
         log.info("Deleted Problem : {}", id);
+
+    }
+
+    public DSAStatisticsDTO getStatistics() {
+
+        long total = problemRepository.count();
+
+        long solved = problemRepository.countBySolved(true);
+
+        long unsolved = problemRepository.countBySolved(false);
+
+        long easy = problemRepository.countByDifficulty(Difficulty.EASY);
+
+        long medium = problemRepository.countByDifficulty(Difficulty.MEDIUM);
+
+        long hard = problemRepository.countByDifficulty(Difficulty.HARD);
+
+        return new DSAStatisticsDTO(
+
+                total,
+
+                solved,
+
+                unsolved,
+
+                easy,
+
+                medium,
+
+                hard
+
+        );
 
     }
 

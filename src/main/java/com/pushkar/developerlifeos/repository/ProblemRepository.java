@@ -18,4 +18,12 @@ public interface ProblemRepository extends JpaRepository<Problem, Long> {
 
     List<Problem> findBySolved(boolean solved);
 
+    long countBySolved(boolean solved);
+
+    long countByDifficulty(Difficulty difficulty);
+
+    long countByPlatform(Platform platform);
+
+    long countByTopic(Topic topic);
+
 }
