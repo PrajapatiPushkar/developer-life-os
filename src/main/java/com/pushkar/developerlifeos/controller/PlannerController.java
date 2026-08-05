@@ -3,6 +3,7 @@ package com.pushkar.developerlifeos.controller;
 import com.pushkar.developerlifeos.dto.ApiResponse;
 import com.pushkar.developerlifeos.dto.PlannerRequestDTO;
 import com.pushkar.developerlifeos.dto.PlannerResponseDTO;
+import com.pushkar.developerlifeos.dto.PlannerStatisticsDTO;
 import com.pushkar.developerlifeos.entity.Planner;
 import com.pushkar.developerlifeos.entity.TimeSlot;
 import com.pushkar.developerlifeos.service.PlannerService;
@@ -163,6 +164,17 @@ public class PlannerController {
         return ResponseEntity.ok(
 
                 plannerService.getTodayFocus()
+
+        );
+
+    }
+
+    @GetMapping("/statistics")
+    public ResponseEntity<PlannerStatisticsDTO> getStatistics() {
+
+        return ResponseEntity.ok(
+
+                plannerService.getStatistics()
 
         );
 

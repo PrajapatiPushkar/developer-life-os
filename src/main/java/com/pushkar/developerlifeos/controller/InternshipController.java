@@ -3,6 +3,7 @@ package com.pushkar.developerlifeos.controller;
 import com.pushkar.developerlifeos.dto.ApiResponse;
 import com.pushkar.developerlifeos.dto.InternshipRequestDTO;
 import com.pushkar.developerlifeos.dto.InternshipResponseDTO;
+import com.pushkar.developerlifeos.dto.InternshipStatisticsDTO;
 import com.pushkar.developerlifeos.entity.Internship;
 import com.pushkar.developerlifeos.service.InternshipService;
 import lombok.RequiredArgsConstructor;
@@ -91,6 +92,18 @@ public class InternshipController {
         internshipService.deleteInternship(id);
 
         return ResponseEntity.noContent().build();
+
+    }
+
+    @GetMapping("/statistics")
+    public ResponseEntity<InternshipStatisticsDTO>
+    getStatistics() {
+
+        return ResponseEntity.ok(
+
+                internshipService.getStatistics()
+
+        );
 
     }
 

@@ -2,7 +2,9 @@ package com.pushkar.developerlifeos.service;
 
 import com.pushkar.developerlifeos.dto.GoalRequestDTO;
 import com.pushkar.developerlifeos.dto.GoalResponseDTO;
+import com.pushkar.developerlifeos.dto.GoalStatisticsDTO;
 import com.pushkar.developerlifeos.entity.Goal;
+import com.pushkar.developerlifeos.entity.GoalStatus;
 import com.pushkar.developerlifeos.exception.TaskNotFoundException;
 import com.pushkar.developerlifeos.repository.GoalRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -85,6 +87,25 @@ public class GoalService {
                         new RuntimeException("Goal not found"));
 
         goalRepository.delete(goal);
+    }
+
+    public GoalStatisticsDTO getStatistics() {
+
+        return GoalStatisticsDTO.builder()
+
+                .totalGoals(goalRepository.count())
+
+                .completedGoals(
+                        goalRepository.countByStatus(GoalStatus.COMPLETED))
+
+                .inProgressGoals(
+                        goalRepository.countByStatus(GoalStatus.IN_PROGRESS))
+
+                .notStartedGoals(
+                        goalRepository.countByStatus(GoalStatus.NOT_STARTED))
+
+                .build();
+
     }
 
 }

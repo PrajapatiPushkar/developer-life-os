@@ -15,4 +15,7 @@ public interface InternshipRepository
 
     List<Internship> findByRoleContainingIgnoreCase(String role);
 
+    long countByStatus(InternshipStatus status);
+
+
 }

@@ -2,7 +2,9 @@ package com.pushkar.developerlifeos.service;
 
 import com.pushkar.developerlifeos.dto.InternshipRequestDTO;
 import com.pushkar.developerlifeos.dto.InternshipResponseDTO;
+import com.pushkar.developerlifeos.dto.InternshipStatisticsDTO;
 import com.pushkar.developerlifeos.entity.Internship;
+import com.pushkar.developerlifeos.entity.InternshipStatus;
 import com.pushkar.developerlifeos.repository.InternshipRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -112,6 +114,60 @@ public class InternshipService {
         internshipRepository.delete(internship);
 
         log.info("Deleted Internship : {}", id);
+
+    }
+
+    public InternshipStatisticsDTO getStatistics() {
+
+        return InternshipStatisticsDTO.builder()
+
+                .totalApplications(
+
+                        internshipRepository.count())
+
+                .applied(
+
+                        internshipRepository.countByStatus(
+
+                                InternshipStatus.APPLIED))
+
+                .onlineAssessment(
+
+                        internshipRepository.countByStatus(
+
+                                InternshipStatus.ONLINE_ASSESSMENT))
+
+                .interview(
+
+                        internshipRepository.countByStatus(
+
+                                InternshipStatus.INTERVIEW))
+
+                .hrRound(
+
+                        internshipRepository.countByStatus(
+
+                                InternshipStatus.HR_ROUND))
+
+                .selected(
+
+                        internshipRepository.countByStatus(
+
+                                InternshipStatus.SELECTED))
+
+                .rejected(
+
+                        internshipRepository.countByStatus(
+
+                                InternshipStatus.REJECTED))
+
+                .offerAccepted(
+
+                        internshipRepository.countByStatus(
+
+                                InternshipStatus.OFFER_ACCEPTED))
+
+                .build();
 
     }
 

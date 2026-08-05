@@ -3,6 +3,7 @@ package com.pushkar.developerlifeos.controller;
 import com.pushkar.developerlifeos.dto.ApiResponse;
 import com.pushkar.developerlifeos.dto.GoalRequestDTO;
 import com.pushkar.developerlifeos.dto.GoalResponseDTO;
+import com.pushkar.developerlifeos.dto.GoalStatisticsDTO;
 import com.pushkar.developerlifeos.entity.Goal;
 import com.pushkar.developerlifeos.service.GoalService;
 import org.springframework.http.ResponseEntity;
@@ -93,6 +94,17 @@ public class GoalController {
         goalService.deleteGoal(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/statistics")
+    public ResponseEntity<GoalStatisticsDTO> getStatistics() {
+
+        return ResponseEntity.ok(
+
+                goalService.getStatistics()
+
+        );
+
     }
 
 }

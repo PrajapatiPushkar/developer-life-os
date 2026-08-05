@@ -20,4 +20,8 @@ public interface PlannerRepository extends JpaRepository<Planner, Long> {
 
     List<Planner> findByPlannerDateAndCompletedFalse(LocalDate plannerDate);
 
+    long countByCompleted(boolean completed);
+
+    long countByTimeSlot(TimeSlot timeSlot);
+
 }
