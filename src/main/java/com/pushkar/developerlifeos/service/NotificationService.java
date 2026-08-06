@@ -64,4 +64,27 @@ public class NotificationService {
                 .toList();
     }
 
+    // Mark as Read
+    public Notification markAsRead(Long id) {
+
+        Notification notification = notificationRepository
+
+                .findById(id)
+
+                .orElseThrow(() ->
+                        new RuntimeException("Notification not found"));
+
+        notification.setRead(true);
+
+        return notificationRepository.save(notification);
+
+    }
+
+    // Delete Notification
+    public void deleteNotification(Long id){
+
+        notificationRepository.deleteById(id);
+
+    }
+
 }
