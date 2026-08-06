@@ -1,8 +1,9 @@
 package com.pushkar.developerlifeos.service;
 
-import com.pushkar.developerlifeos.dto.DSAStatisticsDTO;
+import com.pushkar.developerlifeos.dto.DashboardSummaryDTO;
 import com.pushkar.developerlifeos.dto.ProblemRequestDTO;
 import com.pushkar.developerlifeos.dto.ProblemResponseDTO;
+import com.pushkar.developerlifeos.dto.ProblemStatisticsDTO;
 import com.pushkar.developerlifeos.entity.Difficulty;
 import com.pushkar.developerlifeos.entity.Platform;
 import com.pushkar.developerlifeos.entity.Problem;
@@ -108,7 +109,7 @@ public class ProblemService {
 
     }
 
-    public DSAStatisticsDTO getStatistics() {
+    public ProblemStatisticsDTO getStatistics() {
 
         long total = problemRepository.count();
 
@@ -122,7 +123,7 @@ public class ProblemService {
 
         long hard = problemRepository.countByDifficulty(Difficulty.HARD);
 
-        return new DSAStatisticsDTO(
+        return new ProblemStatisticsDTO(
 
                 total,
 

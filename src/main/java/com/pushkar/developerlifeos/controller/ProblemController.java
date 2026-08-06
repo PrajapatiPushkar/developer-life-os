@@ -1,9 +1,6 @@
 package com.pushkar.developerlifeos.controller;
 
-import com.pushkar.developerlifeos.dto.ApiResponse;
-import com.pushkar.developerlifeos.dto.DSAStatisticsDTO;
-import com.pushkar.developerlifeos.dto.ProblemRequestDTO;
-import com.pushkar.developerlifeos.dto.ProblemResponseDTO;
+import com.pushkar.developerlifeos.dto.*;
 import com.pushkar.developerlifeos.entity.Platform;
 import com.pushkar.developerlifeos.entity.Difficulty;
 import com.pushkar.developerlifeos.entity.Problem;
@@ -76,7 +73,7 @@ public class ProblemController {
     }
 
     @GetMapping("/statistics")
-    public ResponseEntity<DSAStatisticsDTO> getStatistics() {
+    public ResponseEntity<ProblemStatisticsDTO> getStatistics() {
 
         return ResponseEntity.ok(
 
