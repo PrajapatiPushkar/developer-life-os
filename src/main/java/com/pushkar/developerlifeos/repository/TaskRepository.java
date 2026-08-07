@@ -3,7 +3,7 @@ package com.pushkar.developerlifeos.repository;
 import com.pushkar.developerlifeos.entity.Category;
 import com.pushkar.developerlifeos.entity.Priority;
 import com.pushkar.developerlifeos.entity.Task;
-
+import com.pushkar.developerlifeos.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,19 +16,27 @@ public interface TaskRepository extends
         JpaRepository<Task, Long>,
         JpaSpecificationExecutor<Task> {
 
-
-    Page<Task> findByTitleContainingIgnoreCase(
+    Page<Task> findByUserAndTitleContainingIgnoreCase(
+            User user,
             String keyword,
             Pageable pageable
     );
 
-    long countByCompleted(boolean completed);
-    long countByPriority(Priority priority);
-    long countByCategory(Category category);
+    long countByUserAndCompleted(User user, boolean completed);
 
-    List<Task> findTop5ByOrderByDueDateAsc();
+    long countByUserAndPriority(User user, Priority priority);
 
-    long countByDueDateBeforeAndCompletedFalse(LocalDate date);
+    long countByUserAndCategory(User user, Category category);
 
-    long countByDueDateAndCompletedFalse(LocalDate date);
+    List<Task> findTop5ByUserOrderByDueDateAsc(User user);
+
+    long countByUserAndDueDateBeforeAndCompletedFalse(
+            User user,
+            LocalDate date
+    );
+
+    long countByUserAndDueDateAndCompletedFalse(
+            User user,
+            LocalDate date
+    );
 }

@@ -9,6 +9,7 @@ import com.pushkar.developerlifeos.entity.TaskStatus;
 import com.pushkar.developerlifeos.exception.TaskNotFoundException;
 import com.pushkar.developerlifeos.repository.TaskRepository;
 import com.pushkar.developerlifeos.specification.TaskSpecification;
+import com.pushkar.developerlifeos.entity.User;
 
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -30,14 +31,17 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final ModelMapper modelMapper;
     private static final Logger logger = LoggerFactory.getLogger(TaskService.class);
+    private final CurrentUserService currentUserService;
 
 
     // Constructor Injection
     public TaskService(TaskRepository taskRepository,
-                       ModelMapper modelMapper) {
+                       ModelMapper modelMapper,
+                       CurrentUserService currentUserService) {
 
         this.taskRepository = taskRepository;
         this.modelMapper = modelMapper;
+        this.currentUserService = currentUserService;
     }
 
 
@@ -55,7 +59,11 @@ public class TaskService {
 
         log.info("Creating task with title: {}", dto.getTitle());
 
+        User currentUser = currentUserService.getCurrentUser();
+
         Task task = modelMapper.map(dto, Task.class);
+
+        task.setUser(currentUser);
 
         Task savedTask = taskRepository.save(task);
 
@@ -117,8 +125,11 @@ public class TaskService {
             String keyword,
             Pageable pageable) {
 
+        User currentUser = currentUserService.getCurrentUser();
+
         Page<Task> tasks =
-                taskRepository.findByTitleContainingIgnoreCase(
+                taskRepository.findByUserAndTitleContainingIgnoreCase(
+                        currentUser,
                         keyword,
                         pageable
                 );
@@ -175,21 +186,39 @@ public class TaskService {
 
     public DashboardSummaryDTO getDashboardSummary() {
 
-        long total = taskRepository.count();
+        User currentUser = currentUserService.getCurrentUser();
 
-        long completed = taskRepository.countByCompleted(true);
+        long completed =
+                taskRepository.countByUserAndCompleted(
+                        currentUser,
+                        true
+                );
 
-        long pending = taskRepository.countByCompleted(false);
+        long pending =
+                taskRepository.countByUserAndCompleted(
+                        currentUser,
+                        false
+                );
 
-        long high = taskRepository.countByPriority(Priority.HIGH);
+        long high =
+                taskRepository.countByUserAndPriority(
+                        currentUser,
+                        Priority.HIGH
+                );
 
         long overdue =
-                taskRepository.countByDueDateBeforeAndCompletedFalse(
-                        LocalDate.now());
+                taskRepository.countByUserAndDueDateBeforeAndCompletedFalse(
+                        currentUser,
+                        LocalDate.now()
+                );
 
         long today =
-                taskRepository.countByDueDateAndCompletedFalse(
-                        LocalDate.now());
+                taskRepository.countByUserAndDueDateAndCompletedFalse(
+                        currentUser,
+                        LocalDate.now()
+                );
+
+        long total = completed + pending;
 
         double progress =
 
@@ -215,18 +244,23 @@ public class TaskService {
 
     public List<TaskResponseDTO> getUpcomingTasks() {
 
+        User currentUser =
+                currentUserService.getCurrentUser();
+
         return taskRepository
 
-                .findTop5ByOrderByDueDateAsc()
+                .findTop5ByUserOrderByDueDateAsc(currentUser)
 
                 .stream()
 
-                .map(task -> modelMapper.map(
-                        task,
-                        TaskResponseDTO.class
-                ))
+                .map(task ->
+                        modelMapper.map(task,
+                                TaskResponseDTO.class))
 
                 .toList();
+
+
+
 
     }
 

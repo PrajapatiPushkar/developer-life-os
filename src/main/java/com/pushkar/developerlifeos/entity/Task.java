@@ -37,5 +37,7 @@ public class Task extends BaseEntity {
     private Category category = Category.OTHER;
 
 
-    // Getters & Setters
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }
