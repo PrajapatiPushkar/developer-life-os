@@ -2,26 +2,49 @@ package com.pushkar.developerlifeos.repository;
 
 import com.pushkar.developerlifeos.entity.Planner;
 import com.pushkar.developerlifeos.entity.TimeSlot;
+import com.pushkar.developerlifeos.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface PlannerRepository extends JpaRepository<Planner, Long> {
 
-    List<Planner> findByPlannerDate(LocalDate plannerDate);
+    List<Planner> findByUser(User user);
 
-    List<Planner> findByTimeSlot(TimeSlot timeSlot);
+    Optional<Planner> findByIdAndUser(Long id, User user);
 
-    List<Planner> findByPlannerDateAndTimeSlot(
+    List<Planner> findByUserAndPlannerDate(
+            User user,
+            LocalDate plannerDate
+    );
+
+    List<Planner> findByUserAndTimeSlot(
+            User user,
+            TimeSlot timeSlot
+    );
+
+    List<Planner> findByUserAndPlannerDateAndTimeSlot(
+            User user,
             LocalDate plannerDate,
             TimeSlot timeSlot
     );
 
-    List<Planner> findByPlannerDateAndCompletedFalse(LocalDate plannerDate);
+    List<Planner> findByUserAndPlannerDateAndCompletedFalse(
+            User user,
+            LocalDate plannerDate
+    );
 
-    long countByCompleted(boolean completed);
+    long countByUser(User user);
 
-    long countByTimeSlot(TimeSlot timeSlot);
+    long countByUserAndCompleted(
+            User user,
+            boolean completed
+    );
 
+    long countByUserAndTimeSlot(
+            User user,
+            TimeSlot timeSlot
+    );
 }

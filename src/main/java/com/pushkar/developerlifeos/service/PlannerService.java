@@ -5,6 +5,7 @@ import com.pushkar.developerlifeos.dto.PlannerResponseDTO;
 import com.pushkar.developerlifeos.dto.PlannerStatisticsDTO;
 import com.pushkar.developerlifeos.entity.Planner;
 import com.pushkar.developerlifeos.entity.TimeSlot;
+import com.pushkar.developerlifeos.entity.User;
 import com.pushkar.developerlifeos.exception.TaskNotFoundException;
 import com.pushkar.developerlifeos.repository.PlannerRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -20,21 +21,28 @@ public class PlannerService {
 
     private final PlannerRepository plannerRepository;
     private final ModelMapper modelMapper;
+    private final CurrentUserService currentUserService;
 
     public PlannerService(
             PlannerRepository plannerRepository,
-            ModelMapper modelMapper) {
+            ModelMapper modelMapper,
+            CurrentUserService currentUserService) {
 
         this.plannerRepository = plannerRepository;
         this.modelMapper = modelMapper;
+        this.currentUserService = currentUserService;
     }
 
     // Create Planner
     public Planner createPlanner(PlannerRequestDTO dto) {
 
+        User currentUser = currentUserService.getCurrentUser();
+
         Planner planner = modelMapper.map(dto, Planner.class);
 
         planner.setCompleted(false);
+
+        planner.setUser(currentUser);
 
         return plannerRepository.save(planner);
     }
@@ -42,7 +50,9 @@ public class PlannerService {
     // Get All Planners
     public List<PlannerResponseDTO> getAllPlanners() {
 
-        return plannerRepository.findAll()
+        User currentUser = currentUserService.getCurrentUser();
+
+        return plannerRepository.findByUser(currentUser)
 
                 .stream()
 
@@ -51,33 +61,36 @@ public class PlannerService {
                         PlannerResponseDTO.class))
 
                 .toList();
-
     }
 
     // Get Planner By Id
     public PlannerResponseDTO getPlannerById(Long id) {
 
-        Planner planner = plannerRepository.findById(id)
+        User currentUser = currentUserService.getCurrentUser();
+
+        Planner planner = plannerRepository
+
+                .findByIdAndUser(id, currentUser)
 
                 .orElseThrow(() ->
-
-                        new TaskNotFoundException(
-                                "Planner Not Found"));
+                        new TaskNotFoundException("Planner Not Found"));
 
         return modelMapper.map(
                 planner,
                 PlannerResponseDTO.class);
-
     }
 
     // update planner
     public Planner updatePlanner(Long id, PlannerRequestDTO dto) {
 
-        Planner planner = plannerRepository.findById(id)
+        User currentUser = currentUserService.getCurrentUser();
+
+        Planner planner = plannerRepository
+
+                .findByIdAndUser(id, currentUser)
 
                 .orElseThrow(() ->
-                        new TaskNotFoundException(
-                                "Planner not found"));
+                        new TaskNotFoundException("Planner not found"));
 
         planner.setTitle(dto.getTitle());
         planner.setDescription(dto.getDescription());
@@ -85,43 +98,48 @@ public class PlannerService {
         planner.setPlannerDate(dto.getPlannerDate());
 
         return plannerRepository.save(planner);
-
     }
 
     // Delete Planner
     public void deletePlanner(Long id) {
 
-        Planner planner = plannerRepository.findById(id)
+        User currentUser = currentUserService.getCurrentUser();
+
+        Planner planner = plannerRepository
+
+                .findByIdAndUser(id, currentUser)
 
                 .orElseThrow(() ->
-                        new TaskNotFoundException(
-                                "Planner not found"));
+                        new TaskNotFoundException("Planner not found"));
 
         plannerRepository.delete(planner);
-
     }
 
     // Toggle Complete
     public Planner toggleCompleted(Long id) {
 
-        Planner planner = plannerRepository.findById(id)
+        User currentUser = currentUserService.getCurrentUser();
+
+        Planner planner = plannerRepository
+
+                .findByIdAndUser(id, currentUser)
 
                 .orElseThrow(() ->
-                        new TaskNotFoundException(
-                                "Planner not found"));
+                        new TaskNotFoundException("Planner not found"));
 
         planner.setCompleted(!planner.isCompleted());
 
         return plannerRepository.save(planner);
-
     }
 
     //  Filter by Date
     public List<PlannerResponseDTO> getPlannerByDate(LocalDate date) {
 
+        User currentUser = currentUserService.getCurrentUser();
+
         return plannerRepository
 
-                .findByPlannerDate(date)
+                .findByUserAndPlannerDate(currentUser, date)
 
                 .stream()
 
@@ -131,15 +149,16 @@ public class PlannerService {
                                 PlannerResponseDTO.class))
 
                 .toList();
-
     }
 
     // Filter By Time Slot
     public List<PlannerResponseDTO> getPlannerByTimeSlot(TimeSlot slot) {
 
+        User currentUser = currentUserService.getCurrentUser();
+
         return plannerRepository
 
-                .findByTimeSlot(slot)
+                .findByUserAndTimeSlot(currentUser, slot)
 
                 .stream()
 
@@ -149,15 +168,17 @@ public class PlannerService {
                                 PlannerResponseDTO.class))
 
                 .toList();
-
     }
 
     // Focus method
     public List<PlannerResponseDTO> getTodayFocus() {
 
+        User currentUser = currentUserService.getCurrentUser();
+
         return plannerRepository
 
-                .findByPlannerDateAndCompletedFalse(
+                .findByUserAndPlannerDateAndCompletedFalse(
+                        currentUser,
                         LocalDate.now()
                 )
 
@@ -166,39 +187,64 @@ public class PlannerService {
                 .map(planner ->
                         modelMapper.map(
                                 planner,
-                                PlannerResponseDTO.class
-                        ))
+                                PlannerResponseDTO.class))
 
                 .toList();
-
     }
 
     public PlannerStatisticsDTO getStatistics() {
 
+        User currentUser = currentUserService.getCurrentUser();
+
         return PlannerStatisticsDTO.builder()
 
-                .totalPlans(plannerRepository.count())
+                .totalPlans(
+                        plannerRepository.countByUser(currentUser)
+                )
 
                 .completedPlans(
-                        plannerRepository.countByCompleted(true))
+                        plannerRepository.countByUserAndCompleted(
+                                currentUser,
+                                true
+                        )
+                )
 
                 .pendingPlans(
-                        plannerRepository.countByCompleted(false))
+                        plannerRepository.countByUserAndCompleted(
+                                currentUser,
+                                false
+                        )
+                )
 
                 .morningPlans(
-                        plannerRepository.countByTimeSlot(TimeSlot.MORNING))
+                        plannerRepository.countByUserAndTimeSlot(
+                                currentUser,
+                                TimeSlot.MORNING
+                        )
+                )
 
                 .afternoonPlans(
-                        plannerRepository.countByTimeSlot(TimeSlot.AFTERNOON))
+                        plannerRepository.countByUserAndTimeSlot(
+                                currentUser,
+                                TimeSlot.AFTERNOON
+                        )
+                )
 
                 .eveningPlans(
-                        plannerRepository.countByTimeSlot(TimeSlot.EVENING))
+                        plannerRepository.countByUserAndTimeSlot(
+                                currentUser,
+                                TimeSlot.EVENING
+                        )
+                )
 
                 .nightPlans(
-                        plannerRepository.countByTimeSlot(TimeSlot.NIGHT))
+                        plannerRepository.countByUserAndTimeSlot(
+                                currentUser,
+                                TimeSlot.NIGHT
+                        )
+                )
 
                 .build();
-
     }
 
 }
