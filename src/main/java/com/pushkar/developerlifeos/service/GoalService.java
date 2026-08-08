@@ -4,6 +4,7 @@ import com.pushkar.developerlifeos.dto.GoalRequestDTO;
 import com.pushkar.developerlifeos.dto.GoalResponseDTO;
 import com.pushkar.developerlifeos.dto.GoalStatisticsDTO;
 import com.pushkar.developerlifeos.entity.Goal;
+import com.pushkar.developerlifeos.entity.User;
 import com.pushkar.developerlifeos.entity.GoalStatus;
 import com.pushkar.developerlifeos.exception.TaskNotFoundException;
 import com.pushkar.developerlifeos.repository.GoalRepository;
@@ -19,18 +20,25 @@ public class GoalService {
 
     private final GoalRepository goalRepository;
     private final ModelMapper modelMapper;
+    private final CurrentUserService currentUserService;
 
     public GoalService(
             GoalRepository goalRepository,
-            ModelMapper modelMapper) {
+            ModelMapper modelMapper,
+            CurrentUserService currentUserService) {
 
         this.goalRepository = goalRepository;
         this.modelMapper = modelMapper;
+        this.currentUserService = currentUserService;
     }
 
     public Goal createGoal(GoalRequestDTO dto) {
 
+        User currentUser = currentUserService.getCurrentUser();
+
         Goal goal = modelMapper.map(dto, Goal.class);
+
+        goal.setUser(currentUser);
 
         return goalRepository.save(goal);
 
@@ -38,7 +46,9 @@ public class GoalService {
 
     public List<GoalResponseDTO> getAllGoals() {
 
-        return goalRepository.findAll()
+        User currentUser = currentUserService.getCurrentUser();
+
+        return goalRepository.findByUser(currentUser)
 
                 .stream()
 
@@ -52,7 +62,11 @@ public class GoalService {
 
     public GoalResponseDTO getGoalById(Long id) {
 
-        Goal goal = goalRepository.findById(id)
+        User currentUser = currentUserService.getCurrentUser();
+
+        Goal goal = goalRepository
+
+                .findByIdAndUser(id, currentUser)
 
                 .orElseThrow(() ->
                         new TaskNotFoundException(
@@ -66,7 +80,12 @@ public class GoalService {
 
     public Goal updateGoal(Long id, GoalRequestDTO dto) {
 
-        Goal existingGoal = goalRepository.findById(id)
+        User currentUser = currentUserService.getCurrentUser();
+
+        Goal existingGoal = goalRepository
+
+                .findByIdAndUser(id, currentUser)
+
                 .orElseThrow(() ->
                         new RuntimeException("Goal not found"));
 
@@ -82,27 +101,42 @@ public class GoalService {
 
     public void deleteGoal(Long id) {
 
-        Goal goal = goalRepository.findById(id)
+        User currentUser = currentUserService.getCurrentUser();
+
+        Goal goal = goalRepository
+
+                .findByIdAndUser(id, currentUser)
+
                 .orElseThrow(() ->
                         new RuntimeException("Goal not found"));
 
         goalRepository.delete(goal);
+
     }
 
     public GoalStatisticsDTO getStatistics() {
 
+        User currentUser = currentUserService.getCurrentUser();
+
         return GoalStatisticsDTO.builder()
 
-                .totalGoals(goalRepository.count())
+                .totalGoals(
+                        goalRepository.countByUser(currentUser))
 
                 .completedGoals(
-                        goalRepository.countByStatus(GoalStatus.COMPLETED))
+                        goalRepository.countByUserAndStatus(
+                                currentUser,
+                                GoalStatus.COMPLETED))
 
                 .inProgressGoals(
-                        goalRepository.countByStatus(GoalStatus.IN_PROGRESS))
+                        goalRepository.countByUserAndStatus(
+                                currentUser,
+                                GoalStatus.IN_PROGRESS))
 
                 .notStartedGoals(
-                        goalRepository.countByStatus(GoalStatus.NOT_STARTED))
+                        goalRepository.countByUserAndStatus(
+                                currentUser,
+                                GoalStatus.NOT_STARTED))
 
                 .build();
 
