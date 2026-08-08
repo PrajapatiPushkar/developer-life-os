@@ -5,6 +5,7 @@ import com.pushkar.developerlifeos.dto.InternshipResponseDTO;
 import com.pushkar.developerlifeos.dto.InternshipStatisticsDTO;
 import com.pushkar.developerlifeos.entity.Internship;
 import com.pushkar.developerlifeos.entity.InternshipStatus;
+import com.pushkar.developerlifeos.entity.User;
 import com.pushkar.developerlifeos.repository.InternshipRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,156 +20,270 @@ import java.util.List;
 public class InternshipService {
 
     private final InternshipRepository internshipRepository;
+
     private final ModelMapper modelMapper;
 
+    private final CurrentUserService currentUserService;
+
+
+    // ==========================
     // Create Internship
-    public Internship createInternship(InternshipRequestDTO dto) {
+    // ==========================
 
-        Internship internship = modelMapper.map(dto, Internship.class);
+    public Internship createInternship(
+            InternshipRequestDTO dto) {
 
-        log.info("Creating Internship : {}", dto.getCompanyName());
+        User currentUser =
+                currentUserService.getCurrentUser();
+
+        Internship internship =
+                modelMapper.map(
+                        dto,
+                        Internship.class
+                );
+
+        internship.setUser(currentUser);
+
+        log.info(
+                "Creating Internship: {} for user: {}",
+                dto.getCompanyName(),
+                currentUser.getUsername()
+        );
 
         return internshipRepository.save(internship);
     }
 
-    // Get All
+
+    // ==========================
+    // Get All Internships
+    // ==========================
+
     public List<InternshipResponseDTO> getAllInternships() {
 
-        return internshipRepository.findAll()
+        User currentUser =
+                currentUserService.getCurrentUser();
+
+        return internshipRepository
+                .findByUser(currentUser)
 
                 .stream()
 
                 .map(internship ->
-
                         modelMapper.map(
-
                                 internship,
-
-                                InternshipResponseDTO.class))
+                                InternshipResponseDTO.class
+                        )
+                )
 
                 .toList();
     }
 
-    // Get By Id
-    public InternshipResponseDTO getInternshipById(Long id) {
 
-        Internship internship = internshipRepository.findById(id)
+    // ==========================
+    // Get Internship By ID
+    // ==========================
 
-                .orElseThrow(() ->
+    public InternshipResponseDTO getInternshipById(
+            Long id) {
 
-                        new RuntimeException("Internship not found"));
+        User currentUser =
+                currentUserService.getCurrentUser();
+
+        Internship internship =
+                internshipRepository
+                        .findByIdAndUser(
+                                id,
+                                currentUser
+                        )
+
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Internship not found"
+                                )
+                        );
 
         return modelMapper.map(
-
                 internship,
-
-                InternshipResponseDTO.class);
+                InternshipResponseDTO.class
+        );
     }
 
-    // Update
+
+    // ==========================
+    // Update Internship
+    // ==========================
+
     public Internship updateInternship(
-
             Long id,
-
             InternshipRequestDTO dto) {
 
-        Internship internship = internshipRepository.findById(id)
+        User currentUser =
+                currentUserService.getCurrentUser();
 
-                .orElseThrow(() ->
+        Internship internship =
+                internshipRepository
+                        .findByIdAndUser(
+                                id,
+                                currentUser
+                        )
 
-                        new RuntimeException("Internship not found"));
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Internship not found"
+                                )
+                        );
 
-        internship.setCompanyName(dto.getCompanyName());
+        internship.setCompanyName(
+                dto.getCompanyName()
+        );
 
-        internship.setRole(dto.getRole());
+        internship.setRole(
+                dto.getRole()
+        );
 
-        internship.setLocation(dto.getLocation());
+        internship.setLocation(
+                dto.getLocation()
+        );
 
-        internship.setApplicationDate(dto.getApplicationDate());
+        internship.setApplicationDate(
+                dto.getApplicationDate()
+        );
 
-        internship.setDeadline(dto.getDeadline());
+        internship.setDeadline(
+                dto.getDeadline()
+        );
 
-        internship.setStatus(dto.getStatus());
+        internship.setStatus(
+                dto.getStatus()
+        );
 
-        internship.setJobLink(dto.getJobLink());
+        internship.setJobLink(
+                dto.getJobLink()
+        );
 
-        internship.setSalary(dto.getSalary());
+        internship.setSalary(
+                dto.getSalary()
+        );
 
-        internship.setNotes(dto.getNotes());
+        internship.setNotes(
+                dto.getNotes()
+        );
 
-        log.info("Updating Internship : {}", id);
+        log.info(
+                "Updating Internship: {} for user: {}",
+                id,
+                currentUser.getUsername()
+        );
 
         return internshipRepository.save(internship);
-
     }
 
-    // Delete
+
+    // ==========================
+    // Delete Internship
+    // ==========================
+
     public void deleteInternship(Long id) {
 
-        Internship internship = internshipRepository.findById(id)
+        User currentUser =
+                currentUserService.getCurrentUser();
 
-                .orElseThrow(() ->
+        Internship internship =
+                internshipRepository
+                        .findByIdAndUser(
+                                id,
+                                currentUser
+                        )
 
-                        new RuntimeException("Internship not found"));
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Internship not found"
+                                )
+                        );
 
         internshipRepository.delete(internship);
 
-        log.info("Deleted Internship : {}", id);
-
+        log.info(
+                "Deleted Internship: {} for user: {}",
+                id,
+                currentUser.getUsername()
+        );
     }
 
+
+    // ==========================
+    // Statistics
+    // ==========================
+
     public InternshipStatisticsDTO getStatistics() {
+
+        User currentUser =
+                currentUserService.getCurrentUser();
 
         return InternshipStatisticsDTO.builder()
 
                 .totalApplications(
-
-                        internshipRepository.count())
+                        internshipRepository.countByUser(
+                                currentUser
+                        )
+                )
 
                 .applied(
-
-                        internshipRepository.countByStatus(
-
-                                InternshipStatus.APPLIED))
+                        internshipRepository
+                                .countByUserAndStatus(
+                                        currentUser,
+                                        InternshipStatus.APPLIED
+                                )
+                )
 
                 .onlineAssessment(
-
-                        internshipRepository.countByStatus(
-
-                                InternshipStatus.ONLINE_ASSESSMENT))
+                        internshipRepository
+                                .countByUserAndStatus(
+                                        currentUser,
+                                        InternshipStatus.ONLINE_ASSESSMENT
+                                )
+                )
 
                 .interview(
-
-                        internshipRepository.countByStatus(
-
-                                InternshipStatus.INTERVIEW))
+                        internshipRepository
+                                .countByUserAndStatus(
+                                        currentUser,
+                                        InternshipStatus.INTERVIEW
+                                )
+                )
 
                 .hrRound(
-
-                        internshipRepository.countByStatus(
-
-                                InternshipStatus.HR_ROUND))
+                        internshipRepository
+                                .countByUserAndStatus(
+                                        currentUser,
+                                        InternshipStatus.HR_ROUND
+                                )
+                )
 
                 .selected(
-
-                        internshipRepository.countByStatus(
-
-                                InternshipStatus.SELECTED))
+                        internshipRepository
+                                .countByUserAndStatus(
+                                        currentUser,
+                                        InternshipStatus.SELECTED
+                                )
+                )
 
                 .rejected(
-
-                        internshipRepository.countByStatus(
-
-                                InternshipStatus.REJECTED))
+                        internshipRepository
+                                .countByUserAndStatus(
+                                        currentUser,
+                                        InternshipStatus.REJECTED
+                                )
+                )
 
                 .offerAccepted(
-
-                        internshipRepository.countByStatus(
-
-                                InternshipStatus.OFFER_ACCEPTED))
+                        internshipRepository
+                                .countByUserAndStatus(
+                                        currentUser,
+                                        InternshipStatus.OFFER_ACCEPTED
+                                )
+                )
 
                 .build();
-
     }
-
 }

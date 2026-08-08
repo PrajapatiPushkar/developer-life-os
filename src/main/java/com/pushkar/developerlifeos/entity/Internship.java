@@ -45,6 +45,14 @@ public class Internship {
 
     private LocalDateTime updatedAt;
 
+    // ==========================
+    // User Relationship
+    // ==========================
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @PrePersist
     public void onCreate() {
 
@@ -59,5 +67,4 @@ public class Internship {
         updatedAt = LocalDateTime.now();
 
     }
-
 }
