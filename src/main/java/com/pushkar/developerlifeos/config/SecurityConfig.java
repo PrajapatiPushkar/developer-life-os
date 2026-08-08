@@ -4,10 +4,8 @@ import com.pushkar.developerlifeos.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.http.SessionCreationPolicy;
-
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -21,95 +19,178 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
-
     private final JwtAuthenticationFilter jwtFilter;
 
     public SecurityConfig(
-            JwtAuthenticationFilter jwtFilter){
+            JwtAuthenticationFilter jwtFilter) {
 
         this.jwtFilter = jwtFilter;
-
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(
-            HttpSecurity http)
-
-            throws Exception {
+            HttpSecurity http) throws Exception {
 
         http
 
-                .csrf(csrf->csrf.disable())
+                // ==========================
+                // CSRF
+                // ==========================
 
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
 
-                .sessionManagement(session->
 
+                // ==========================
+                // CORS
+                // ==========================
+
+                .cors(cors ->
+                        cors.configurationSource(
+                                corsConfigurationSource()
+                        )
+                )
+
+
+                // ==========================
+                // Stateless Session
+                // ==========================
+
+                .sessionManagement(session ->
                         session.sessionCreationPolicy(
-
                                 SessionCreationPolicy.STATELESS
+                        )
+                )
 
-                        ))
+
+                // ==========================
+                // Authorization
+                // ==========================
 
                 .authorizeHttpRequests(auth -> auth
 
-                .requestMatchers("/auth/**",
-                        "/v3/api-docs/**",
-                        "/swagger-ui/**",
-                        "/swagger-ui.html"
+                        // --------------------------------
+                        // Public Authentication APIs
+                        // --------------------------------
+
+                        .requestMatchers(
+                                "/auth/**"
+                        ).permitAll()
+
+
+                        // --------------------------------
+                        // Swagger / OpenAPI
+                        // --------------------------------
+
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+
+
+                        // --------------------------------
+                        // CORS Preflight
+                        // --------------------------------
+
+                        .requestMatchers(
+                                HttpMethod.OPTIONS,
+                                "/**"
+                        ).permitAll()
+
+
+                        // --------------------------------
+                        // Admin-only Task Delete
+                        // --------------------------------
+
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/tasks/**"
+                        ).hasRole("ADMIN")
+
+
+                        // --------------------------------
+                        // All Application APIs
+                        // Require Login
+                        // --------------------------------
+
+                        .requestMatchers(
+                                "/api/**"
+                        ).authenticated()
+
+
+                        // --------------------------------
+                        // Everything else
+                        // --------------------------------
+
+                        .anyRequest().authenticated()
                 )
-                .permitAll()
 
-                .requestMatchers(HttpMethod.DELETE,
-                        "/api/tasks/**")
-                .hasRole("ADMIN")
 
-                .anyRequest()
-                .permitAll()
-        )
+                // ==========================
+                // JWT Filter
+                // ==========================
 
                 .addFilterBefore(
-
                         jwtFilter,
-
                         UsernamePasswordAuthenticationFilter.class
-
                 );
 
         return http.build();
-
     }
+
+
+    // ==========================
+    // Password Encoder
+    // ==========================
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+
         return new BCryptPasswordEncoder();
     }
+
+
+    // ==========================
+    // CORS Configuration
+    // ==========================
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
-        CorsConfiguration configuration = new CorsConfiguration();
+        CorsConfiguration configuration =
+                new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedOrigins(
+                List.of(
+                        "http://localhost:5173"
+                )
+        );
 
-        configuration.setAllowedMethods(List.of(
-                "GET",
-                "POST",
-                "PUT",
-                "DELETE",
-                "OPTIONS"
-        ));
+        configuration.setAllowedMethods(
+                List.of(
+                        "GET",
+                        "POST",
+                        "PUT",
+                        "DELETE",
+                        "PATCH",
+                        "OPTIONS"
+                )
+        );
 
-        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedHeaders(
+                List.of("*")
+        );
 
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
 
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration(
+                "/**",
+                configuration
+        );
 
         return source;
     }
-
 }
