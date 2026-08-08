@@ -4,27 +4,76 @@ import com.pushkar.developerlifeos.entity.Difficulty;
 import com.pushkar.developerlifeos.entity.Platform;
 import com.pushkar.developerlifeos.entity.Problem;
 import com.pushkar.developerlifeos.entity.Topic;
+import com.pushkar.developerlifeos.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface ProblemRepository extends JpaRepository<Problem, Long>, JpaSpecificationExecutor<Problem> {
+public interface ProblemRepository extends
+        JpaRepository<Problem, Long>,
+        JpaSpecificationExecutor<Problem> {
 
-    List<Problem> findByDifficulty(Difficulty difficulty);
+    // ==========================
+    // User Specific
+    // ==========================
 
-    List<Problem> findByPlatform(Platform platform);
+    List<Problem> findByUser(User user);
 
-    List<Problem> findByTopic(Topic topic);
+    Optional<Problem> findByIdAndUser(
+            Long id,
+            User user
+    );
 
-    List<Problem> findBySolved(boolean solved);
+    // ==========================
+    // Filters
+    // ==========================
 
-    long countBySolved(boolean solved);
+    List<Problem> findByUserAndDifficulty(
+            User user,
+            Difficulty difficulty
+    );
 
-    long countByDifficulty(Difficulty difficulty);
+    List<Problem> findByUserAndPlatform(
+            User user,
+            Platform platform
+    );
 
-    long countByPlatform(Platform platform);
+    List<Problem> findByUserAndTopic(
+            User user,
+            Topic topic
+    );
 
-    long countByTopic(Topic topic);
+    List<Problem> findByUserAndSolved(
+            User user,
+            boolean solved
+    );
+
+    // ==========================
+    // Statistics
+    // ==========================
+
+    long countByUser(User user);
+
+    long countByUserAndSolved(
+            User user,
+            boolean solved
+    );
+
+    long countByUserAndDifficulty(
+            User user,
+            Difficulty difficulty
+    );
+
+    long countByUserAndPlatform(
+            User user,
+            Platform platform
+    );
+
+    long countByUserAndTopic(
+            User user,
+            Topic topic
+    );
 
 }

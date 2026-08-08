@@ -45,4 +45,12 @@ public class Problem {
 
     private LocalDate solvedDate;
 
+    // ==========================
+    // User Relationship
+    // ==========================
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
 }

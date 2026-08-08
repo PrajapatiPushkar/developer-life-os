@@ -1,6 +1,5 @@
 package com.pushkar.developerlifeos.service;
 
-import com.pushkar.developerlifeos.dto.DashboardSummaryDTO;
 import com.pushkar.developerlifeos.dto.ProblemRequestDTO;
 import com.pushkar.developerlifeos.dto.ProblemResponseDTO;
 import com.pushkar.developerlifeos.dto.ProblemStatisticsDTO;
@@ -8,6 +7,7 @@ import com.pushkar.developerlifeos.entity.Difficulty;
 import com.pushkar.developerlifeos.entity.Platform;
 import com.pushkar.developerlifeos.entity.Problem;
 import com.pushkar.developerlifeos.entity.Topic;
+import com.pushkar.developerlifeos.entity.User;
 import com.pushkar.developerlifeos.repository.ProblemRepository;
 import com.pushkar.developerlifeos.specification.ProblemSpecification;
 import lombok.RequiredArgsConstructor;
@@ -24,104 +24,233 @@ import java.util.List;
 public class ProblemService {
 
     private final ProblemRepository problemRepository;
+
     private final ModelMapper modelMapper;
 
+    private final CurrentUserService currentUserService;
 
+
+    // ==========================
     // Create Problem
+    // ==========================
+
     public Problem createProblem(ProblemRequestDTO dto) {
 
-        Problem problem = modelMapper.map(dto, Problem.class);
+        User currentUser =
+                currentUserService.getCurrentUser();
 
-        log.info("Creating DSA Problem : {}", dto.getTitle());
+        Problem problem =
+                modelMapper.map(dto, Problem.class);
+
+        problem.setUser(currentUser);
+
+        log.info(
+                "Creating DSA Problem: {} for user: {}",
+                dto.getTitle(),
+                currentUser.getUsername()
+        );
 
         return problemRepository.save(problem);
-
     }
 
+
+    // ==========================
     // Get All Problems
+    // ==========================
+
     public List<ProblemResponseDTO> getAllProblems() {
 
-        return problemRepository.findAll()
+        User currentUser =
+                currentUserService.getCurrentUser();
+
+        return problemRepository
+                .findByUser(currentUser)
 
                 .stream()
 
                 .map(problem ->
-
                         modelMapper.map(
                                 problem,
-                                ProblemResponseDTO.class))
+                                ProblemResponseDTO.class
+                        )
+                )
 
                 .toList();
-
     }
 
-    // Get Problem by ID
+
+    // ==========================
+    // Get Problem By ID
+    // ==========================
+
     public ProblemResponseDTO getProblemById(Long id) {
 
-        Problem problem = problemRepository.findById(id)
+        User currentUser =
+                currentUserService.getCurrentUser();
 
-                .orElseThrow(() ->
+        Problem problem =
+                problemRepository
+                        .findByIdAndUser(
+                                id,
+                                currentUser
+                        )
 
-                        new RuntimeException("Problem not found"));
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Problem not found"
+                                )
+                        );
 
         return modelMapper.map(
                 problem,
-                ProblemResponseDTO.class);
-
+                ProblemResponseDTO.class
+        );
     }
 
+
+    // ==========================
     // Update Problem
-    public Problem updateProblem(Long id,
-                                 ProblemRequestDTO dto) {
+    // ==========================
 
-        Problem problem = problemRepository.findById(id)
+    public Problem updateProblem(
+            Long id,
+            ProblemRequestDTO dto) {
 
-                .orElseThrow(() ->
-                        new RuntimeException("Problem not found"));
+        User currentUser =
+                currentUserService.getCurrentUser();
+
+        Problem problem =
+                problemRepository
+                        .findByIdAndUser(
+                                id,
+                                currentUser
+                        )
+
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Problem not found"
+                                )
+                        );
 
         problem.setTitle(dto.getTitle());
-        problem.setPlatform(dto.getPlatform());
-        problem.setDifficulty(dto.getDifficulty());
-        problem.setTopic(dto.getTopic());
-        problem.setSolved(dto.isSolved());
-        problem.setProblemLink(dto.getProblemLink());
-        problem.setSolutionLink(dto.getSolutionLink());
-        problem.setNotes(dto.getNotes());
-        problem.setSolvedDate(dto.getSolvedDate());
 
-        log.info("Updating Problem : {}", id);
+        problem.setPlatform(
+                dto.getPlatform()
+        );
+
+        problem.setDifficulty(
+                dto.getDifficulty()
+        );
+
+        problem.setTopic(
+                dto.getTopic()
+        );
+
+        problem.setSolved(
+                dto.isSolved()
+        );
+
+        problem.setProblemLink(
+                dto.getProblemLink()
+        );
+
+        problem.setSolutionLink(
+                dto.getSolutionLink()
+        );
+
+        problem.setNotes(
+                dto.getNotes()
+        );
+
+        problem.setSolvedDate(
+                dto.getSolvedDate()
+        );
+
+        log.info(
+                "Updating Problem: {} for user: {}",
+                id,
+                currentUser.getUsername()
+        );
 
         return problemRepository.save(problem);
-
     }
 
+
+    // ==========================
     // Delete Problem
+    // ==========================
+
     public void deleteProblem(Long id) {
 
-        Problem problem = problemRepository.findById(id)
+        User currentUser =
+                currentUserService.getCurrentUser();
 
-                .orElseThrow(() ->
-                        new RuntimeException("Problem not found"));
+        Problem problem =
+                problemRepository
+                        .findByIdAndUser(
+                                id,
+                                currentUser
+                        )
+
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Problem not found"
+                                )
+                        );
 
         problemRepository.delete(problem);
 
-        log.info("Deleted Problem : {}", id);
-
+        log.info(
+                "Deleted Problem: {} for user: {}",
+                id,
+                currentUser.getUsername()
+        );
     }
+
+
+    // ==========================
+    // Statistics
+    // ==========================
 
     public ProblemStatisticsDTO getStatistics() {
 
-        long total = problemRepository.count();
+        User currentUser =
+                currentUserService.getCurrentUser();
 
-        long solved = problemRepository.countBySolved(true);
+        long total =
+                problemRepository.countByUser(
+                        currentUser
+                );
 
-        long unsolved = problemRepository.countBySolved(false);
+        long solved =
+                problemRepository.countByUserAndSolved(
+                        currentUser,
+                        true
+                );
 
-        long easy = problemRepository.countByDifficulty(Difficulty.EASY);
+        long unsolved =
+                problemRepository.countByUserAndSolved(
+                        currentUser,
+                        false
+                );
 
-        long medium = problemRepository.countByDifficulty(Difficulty.MEDIUM);
+        long easy =
+                problemRepository.countByUserAndDifficulty(
+                        currentUser,
+                        Difficulty.EASY
+                );
 
-        long hard = problemRepository.countByDifficulty(Difficulty.HARD);
+        long medium =
+                problemRepository.countByUserAndDifficulty(
+                        currentUser,
+                        Difficulty.MEDIUM
+                );
+
+        long hard =
+                problemRepository.countByUserAndDifficulty(
+                        currentUser,
+                        Difficulty.HARD
+                );
 
         return new ProblemStatisticsDTO(
 
@@ -136,10 +265,13 @@ public class ProblemService {
                 medium,
 
                 hard
-
         );
-
     }
+
+
+    // ==========================
+    // Filter Problems
+    // ==========================
 
     public List<ProblemResponseDTO> filterProblems(
 
@@ -151,58 +283,97 @@ public class ProblemService {
 
             Topic topic,
 
-            Boolean solved){
+            Boolean solved) {
+
+        User currentUser =
+                currentUserService.getCurrentUser();
 
         Specification<Problem> specification =
                 Specification.allOf();
 
-        if(title!=null && !title.isBlank()){
 
-            specification=specification.and(
-                    ProblemSpecification.hasTitle(title));
+        // ==========================
+        // IMPORTANT:
+        // Always filter by current user
+        // ==========================
 
+        specification = specification.and(
+                (root, query, criteriaBuilder) ->
+                        criteriaBuilder.equal(
+                                root.get("user"),
+                                currentUser
+                        )
+        );
+
+
+        if (title != null && !title.isBlank()) {
+
+            specification =
+                    specification.and(
+                            ProblemSpecification.hasTitle(
+                                    title
+                            )
+                    );
         }
 
-        if(difficulty!=null){
 
-            specification=specification.and(
-                    ProblemSpecification.hasDifficulty(difficulty));
+        if (difficulty != null) {
 
+            specification =
+                    specification.and(
+                            ProblemSpecification.hasDifficulty(
+                                    difficulty
+                            )
+                    );
         }
 
-        if(platform!=null){
 
-            specification=specification.and(
-                    ProblemSpecification.hasPlatform(platform));
+        if (platform != null) {
 
+            specification =
+                    specification.and(
+                            ProblemSpecification.hasPlatform(
+                                    platform
+                            )
+                    );
         }
 
-        if(topic!=null){
 
-            specification=specification.and(
-                    ProblemSpecification.hasTopic(topic));
+        if (topic != null) {
 
+            specification =
+                    specification.and(
+                            ProblemSpecification.hasTopic(
+                                    topic
+                            )
+                    );
         }
 
-        if(solved!=null){
 
-            specification=specification.and(
-                    ProblemSpecification.isSolved(solved));
+        if (solved != null) {
 
+            specification =
+                    specification.and(
+                            ProblemSpecification.isSolved(
+                                    solved
+                            )
+                    );
         }
 
-        return problemRepository.findAll(specification)
+
+        return problemRepository
+                .findAll(specification)
 
                 .stream()
 
-                .map(problem->
-
+                .map(problem ->
                         modelMapper.map(
                                 problem,
-                                ProblemResponseDTO.class))
+                                ProblemResponseDTO.class
+                        )
+                )
 
                 .toList();
-
     }
 
 }
