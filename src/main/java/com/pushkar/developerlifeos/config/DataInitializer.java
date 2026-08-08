@@ -14,8 +14,9 @@ public class DataInitializer implements CommandLineRunner {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public DataInitializer(UserRepository userRepository,
-                           PasswordEncoder passwordEncoder) {
+    public DataInitializer(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder) {
 
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -34,11 +35,21 @@ public class DataInitializer implements CommandLineRunner {
                     passwordEncoder.encode("admin123")
             );
 
+            admin.setEmail("admin@developerlifeos.com");
+
+            admin.setPhone("9999999999");
+
+            admin.setFullName("Developer Life OS Admin");
+
+            admin.setEnabled(true);
+
             admin.setRole(Role.ROLE_ADMIN);
 
             userRepository.save(admin);
 
-            System.out.println("Default Admin Created.");
+            System.out.println(
+                    "Default Admin Created Successfully."
+            );
         }
     }
 }
